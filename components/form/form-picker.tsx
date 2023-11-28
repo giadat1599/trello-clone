@@ -8,6 +8,7 @@ import Link from "next/link";
 import { unsplash } from "@/lib/unsplash";
 import { cn } from "@/lib/utils";
 import { defaultImages } from "@/constants/images";
+import { FormErrors } from "./form-errors";
 
 interface FormPickerProps {
    id: string;
@@ -27,6 +28,7 @@ export const FormPicker = ({ id, errors }: FormPickerProps) => {
                collectionIds: ["317099"],
                count: 9,
             });
+            console.log("dqwdq");
 
             if (result && result.response) {
                const newImages = result.response as Array<Record<string, any>>;
@@ -68,6 +70,15 @@ export const FormPicker = ({ id, errors }: FormPickerProps) => {
                      setSelectedImageId(image.id);
                   }}
                >
+                  <input
+                     type="radio"
+                     id={id}
+                     name={id}
+                     className="hidden"
+                     checked={selectedImageId === image.id}
+                     disabled={pending}
+                     value={`${image.id}|${image.urls.thumb}|${image.urls.full}|${image.links.html}|${image.user.name}`}
+                  />
                   <Image
                      fill
                      alt="Unsplash image"
@@ -89,6 +100,7 @@ export const FormPicker = ({ id, errors }: FormPickerProps) => {
                </div>
             ))}
          </div>
+         <FormErrors id="image" errors={errors} />
       </div>
    );
 };

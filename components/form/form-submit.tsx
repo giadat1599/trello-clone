@@ -7,7 +7,12 @@ import { Button, ButtonProps } from "@/components/ui/button";
 
 interface FormSubmitProps extends ButtonProps {}
 
-export const FormSubmit = ({ children, disabled, className, variant }: FormSubmitProps) => {
+export const FormSubmit = ({
+   children,
+   disabled,
+   className,
+   variant = "primary",
+}: FormSubmitProps) => {
    const { pending } = useFormStatus();
 
    return (
