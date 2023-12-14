@@ -9,6 +9,8 @@ import { db } from "@/lib/db";
 import { createSafeAction } from "@/lib/create-safe-action";
 import { CreateBoard } from "./schema";
 import { createAuditLog } from "@/lib/create-audit-log";
+import { increaseAvailableCount, hasAvailableCount } from "@/lib/org-limit";
+import { checkSubscription } from "@/lib/subscription";
 
 const handler = async (data: InputType): Promise<ReturnType> => {
    const { userId, orgId } = auth();
@@ -16,6 +18,14 @@ const handler = async (data: InputType): Promise<ReturnType> => {
    if (!userId || !orgId) {
       return {
          error: "Unauthorized",
+      };
+   }
+   const canCreate = await hasAvailableCount();
+   const isPro = await checkSubscription();
+
+   if (!canCreate && !isPro) {
+      return {
+         error: "You have reached your limit of free boards. Please upgradge to create mote",
       };
    }
 
@@ -34,6 +44,10 @@ const handler = async (data: InputType): Promise<ReturnType> => {
       board = await db.board.create({
          data: { title, orgId, imageId, imageThumbUrl, imageFullUrl, imageLinkHTML, imageUserName },
       });
+
+      if (!isPro) {
+         await increaseAvailableCount();
+      }
 
       await createAuditLog({
          entityTitle: board.title,
